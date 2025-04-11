@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/thiagotnunes08/go-gateway-api/internal/domain"
 )
@@ -41,4 +42,111 @@ func (r *AccountRepository) Save(account *domain.Account) error {
 	}
 
 	return nil
+}
+
+func (r *AccountRepository) FindByAPIKey(apiKey string) (*domain.Account, error) {
+
+	var account domain.Account
+	var created_at, updated_at time.Time
+
+	err := r.db.QueryRow(
+		` SELECT id,name,email,api_key,balance,created_at,updated_at 
+		from accounts 
+		where api_key = $1 `,
+		apiKey).Scan(
+		&account.ID,
+		&account.Name,
+		&account.Email,
+		&account.APIKey,
+		&account.Balance,
+		&account.CreatedAt,
+		&account.UpdateAt,
+	)
+
+	if err == sql.ErrNoRows {
+
+		return nil, domain.ErrAccountNotFound
+	}
+
+	if err != nil {
+
+		return nil, err
+	}
+
+	account.CreatedAt = created_at
+	account.UpdateAt = updated_at
+	return &account, nil
+}
+
+func (r *AccountRepository) FindByID(id string) (*domain.Account, error) {
+
+	var account domain.Account
+	var created_at, updated_at time.Time
+
+	err := r.db.QueryRow(
+		` SELECT id,name,email,api_key,balance,created_at,updated_at 
+		from accounts 
+		where id = $1 `,
+		id).Scan(
+		&account.ID,
+		&account.Name,
+		&account.Email,
+		&account.APIKey,
+		&account.Balance,
+		&account.CreatedAt,
+		&account.UpdateAt,
+	)
+
+	if err == sql.ErrNoRows {
+
+		return nil, domain.ErrAccountNotFound
+	}
+
+	if err != nil {
+
+		return nil, err
+	}
+
+	account.CreatedAt = created_at
+	account.UpdateAt = updated_at
+	return &account, nil
+}
+
+func (r *AccountRepository) UpdateBalance(account *domain.Account) error {
+
+	tx, err := r.db.Begin()
+
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+
+	var currentBalance float64
+
+	err = tx.QueryRow(`SELECT balance from accounts where id = $1 for update`,
+		account.ID).Scan(&currentBalance)
+
+	if err == sql.ErrNoRows {
+
+		return domain.ErrAccountNotFound
+	}
+
+	if err != nil {
+
+		return err
+	}
+
+	_, err = tx.Exec(`update accounts 
+	                  set balance = $1, 
+					  updated_at = $2 
+					  where id = $3
+					  `, currentBalance+account.Balance, time.Now(), account.ID)
+
+	if err != nil {
+
+		return err
+	}
+
+	return tx.Commit()
 }

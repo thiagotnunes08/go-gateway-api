@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS invoices (
 id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 account_id UUID NOT NULL REFERENCES accounts(id),
 amount decimal(10,2) NOT NULL DEFAULT 0,
+card_last_digits int NOT NULL DEFAULT 0,
 status VARCHAR(50) NOT NULL DEFAULT 'pending',
 description TEXT NOT NULL,
 payment_type VARCHAR(50) NOT NULL,

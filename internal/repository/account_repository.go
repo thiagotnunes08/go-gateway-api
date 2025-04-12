@@ -34,7 +34,7 @@ func (r *AccountRepository) Save(account *domain.Account) error {
 		account.APIKey,
 		account.Balance,
 		account.CreatedAt,
-		account.UpdateAt,
+		account.UpdatedAt,
 	)
 
 	if err != nil {
@@ -45,22 +45,21 @@ func (r *AccountRepository) Save(account *domain.Account) error {
 }
 
 func (r *AccountRepository) FindByAPIKey(apiKey string) (*domain.Account, error) {
-
 	var account domain.Account
-	var created_at, updated_at time.Time
+	var createdAt, updatedAt time.Time
 
-	err := r.db.QueryRow(
-		` SELECT id,name,email,api_key,balance,created_at,updated_at 
-		from accounts 
-		where api_key = $1 `,
-		apiKey).Scan(
+	err := r.db.QueryRow(`
+		SELECT id, name, email, api_key, balance, created_at, updated_at
+		FROM accounts
+		WHERE api_key = $1
+	`, apiKey).Scan(
 		&account.ID,
 		&account.Name,
 		&account.Email,
 		&account.APIKey,
 		&account.Balance,
-		&account.CreatedAt,
-		&account.UpdateAt,
+		&createdAt,
+		&updatedAt,
 	)
 
 	if err == sql.ErrNoRows {
@@ -73,8 +72,8 @@ func (r *AccountRepository) FindByAPIKey(apiKey string) (*domain.Account, error)
 		return nil, err
 	}
 
-	account.CreatedAt = created_at
-	account.UpdateAt = updated_at
+	account.CreatedAt = createdAt
+	account.UpdatedAt = updatedAt
 	return &account, nil
 }
 
@@ -94,7 +93,7 @@ func (r *AccountRepository) FindByID(id string) (*domain.Account, error) {
 		&account.APIKey,
 		&account.Balance,
 		&account.CreatedAt,
-		&account.UpdateAt,
+		&account.UpdatedAt,
 	)
 
 	if err == sql.ErrNoRows {
@@ -108,7 +107,7 @@ func (r *AccountRepository) FindByID(id string) (*domain.Account, error) {
 	}
 
 	account.CreatedAt = created_at
-	account.UpdateAt = updated_at
+	account.UpdatedAt = updated_at
 	return &account, nil
 }
 

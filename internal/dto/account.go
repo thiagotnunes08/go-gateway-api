@@ -34,6 +34,6 @@ func FromAccount(account *domain.Account) AccountOutput {
 		Balance:   account.Balance,
 		APIKey:    account.APIKey,
 		CreatedAt: account.CreatedAt,
-		UpdatedAt: account.UpdateAt,
+		UpdatedAt: account.UpdatedAt,
 	}
 }

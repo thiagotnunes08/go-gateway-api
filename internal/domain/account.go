@@ -17,7 +17,7 @@ type Account struct {
 	Balance   float64
 	mu        sync.RWMutex
 	CreatedAt time.Time
-	UpdateAt  time.Time
+	UpdatedAt time.Time
 }
 
 func NewAccont(name, email string) *Account {
@@ -29,7 +29,7 @@ func NewAccont(name, email string) *Account {
 		Balance:   0,
 		APIKey:    generateAPIKey(),
 		CreatedAt: time.Now(),
-		UpdateAt:  time.Now(),
+		UpdatedAt: time.Now(),
 	}
 
 	return account
@@ -46,5 +46,5 @@ func (a *Account) AddBalance(ammout float64) {
 	defer a.mu.Unlock()
 
 	a.Balance += ammout
-	a.UpdateAt = time.Now()
+	a.UpdatedAt = time.Now()
 }
